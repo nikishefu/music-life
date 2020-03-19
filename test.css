@@ -1,0 +1,92 @@
+#navbar_picture {
+
+	background-color: #151515;
+	width: 110%;
+	height: 70px;
+	position: absolute;
+	top: -5px;
+	left: -20px;
+
+}
+
+#menu_buttons a {
+
+	color: white;
+	text-decoration: none;
+	position: relative;
+	z-index: 10;
+	font-family: Arial;
+	padding: 0 1%;
+	top: 15px;
+	left: 160px;
+
+}
+
+#menu_buttons a:hover {
+
+	color: #FF4000;
+
+}
+
+body {
+
+	overflow-x:hidden;
+	background-color: #2E2E2E
+
+}
+
+#fon {
+
+	position: absolute;
+	z-index: -4;
+	right: 1px;
+	border: none;
+	border-color: #0351C1;
+	width: 100%;
+	height: 100%;
+	background-image:
+	linear-gradient(-45deg, transparent 50%, #FF4000 50%, #FF4000 60%, transparent 60%),
+	linear-gradient(-45deg, #FF4000 10%, transparent 10%);
+	background-size: 2em 2em;
+	opacity: 0.05;
+
+}
+
+* {box-sizing: border-box;}
+
+form {
+
+	position: relative;
+ 	width: 300px;
+  	top: -10px;
+  	left: 405px;
+}
+
+input, button {
+
+  	border: none;
+  	outline: none;
+  	border-radius: 3px;
+
+}
+
+input {
+
+  	width: 100%;
+  	height: 32px;
+  	background: #2E2E2E;
+  	color: white;
+  	padding-left: 15px;
+
+}
+
+#logo {
+
+	color: #FF4000;
+	position: absolute;
+	right: 160px;
+	z-index: 10;
+	font-family: Arial Black;
+	top: 4px;
+
+}

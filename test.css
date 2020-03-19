@@ -90,3 +90,24 @@ input {
 	top: 4px;
 
 }
+
+#login_buttons a{
+
+	color: white;
+	text-decoration: none;
+	position: relative;
+	z-index: 10;
+	font-family: Arial;
+	padding: 5px 1%;
+	top: -34px;
+	left: 70%;
+	border: 1px solid #FF4000;
+	border-radius: 25px 10px 25px 10px;
+}
+
+#login_buttons a:hover {
+
+	color: #FF4000;
+	border: 1px solid white;
+
+}

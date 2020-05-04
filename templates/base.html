@@ -1,13 +1,40 @@
 <!DOCTYPE html>
-<html>
-    <head></head>
-        <title>{{page_title}}</title>
-        <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="/static/css/style.css">
-    </head>
-    <body>
-        <h1>Hello!</h1>
-        {% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+    <title>MusicLife</title>
+</head>
+<body>
+    <nav>
+        <a id="logo", href='/'>MusicLife</a>
+        <div>
+            <input type="text" name="search" id="search" placeholder="Искать трек">
+            <a class="nav-button" href="/track">Новый трек</a>
+        </div>
+        <div>
+            <a class="nav-button" href="#">Вход</a>
+            <a class="nav-button" href="#">Регистрация</a>
+            <a class="nav-button" href="#">Профиль</a>
+        </div>
+        <div id="menu" class="dropdown">
+            <a onclick="toggleDrop()" class="dropbtn nav-button">☰</a>
+            <div id="menu-content" class="dropdown-content">
+                <input type="text" name="search" id="search" placeholder="Искать трек">
+                <a class="nav-button" href="/track">Новый трек</a>
+                <a class="nav-button" href="#">Вход</a>
+                <a class="nav-button" href="#">Регистрация</a>
+                <a class="nav-button" href="#">Профиль</a>
+            </div>
+        </div>
+    </nav>
+    <div id="block-content">
+        {% block content %} 
         {% endblock %}
-    </body>
+    </div>
+
+    <script src="/static/js/base.js"></script>
+</body>
 </html>

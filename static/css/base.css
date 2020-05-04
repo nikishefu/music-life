@@ -1,0 +1,123 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: rgb(50, 50, 50);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgb(30, 30, 30);
+    padding: 10px 10vw;
+}
+
+nav > div {
+    display: flex;
+    align-items: center;
+}
+
+nav > div > * {
+    margin: 0 1vw 0 0;
+}
+
+a {
+    text-decoration: none;
+    color: #F25C05;
+}
+
+a, p, h1, h2, h3, input {
+    font-size: 1em;
+    font-family: 'Comfortaa', cursive;
+}
+
+a:hover {
+    color: #F28705;
+}
+
+a:active {
+    color: #F25C05;
+}
+
+input[type=text] {
+    background: rgb(50, 50, 50);
+    color: white;
+    border: 1px solid #F25C05;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.nav-button {
+    color: white;
+    background: #F25C05;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.nav-button:hover {
+    color: white;
+    background-color: #F28705;
+}
+
+.nav-button:active {
+    color: white;
+    background-color: #F25C05;
+}
+  
+.dropdown {
+    float: right;
+    position: relative;
+}
+  
+.dropdown-content {
+    display: none;
+    position: absolute;
+    overflow: auto;
+    right: 0;
+    z-index: 1;
+    padding: 10px 0;
+}
+  
+.dropdown-content a, .dropdown-content input {
+    display: block;
+    margin: 5px 0;
+    width: 150px;
+}
+  
+.show {display: block;}
+
+#menu {
+    display: none;
+}
+
+#logo {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2em;
+    padding-left: 1vw;
+    padding-right: 2vw;
+}
+
+#block-content {
+    margin: 50px 10vw;
+}
+
+@media screen and (max-width: 1100px) {
+    nav {
+        padding: 10px 2vw;
+    }
+    #block-content {
+        margin: 30px 2vw;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    nav > div {
+        display: none;
+    }
+    #menu {
+        display: block;
+    }
+}

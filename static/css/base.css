@@ -29,9 +29,13 @@ a {
     color: #F25C05;
 }
 
-a, p, h1, h2, h3, input {
-    font-size: 1em;
+p, a, input, h1, h2, h3 {
     font-family: 'Comfortaa', cursive;
+    color: white;
+}
+
+p, h1, h2, h3{
+    color: #F25C05;
 }
 
 a:hover {
@@ -47,14 +51,29 @@ input[type=text] {
     color: white;
     border: 1px solid #F25C05;
     border-radius: 5px;
-    padding: 5px;
+    padding: 6px;
+}
+
+select {
+    margin: 3px;
+    background: #F25C05;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;   
+}
+
+.select-cont {
+    position: relative;
 }
 
 .nav-button {
     color: white;
     background: #F25C05;
+    border: none;
     border-radius: 5px;
-    padding: 5px;
+    padding: 7px;
+    font-size: 0.7em;
 }
 
 .nav-button:hover {
@@ -81,7 +100,7 @@ input[type=text] {
     padding: 10px 0;
 }
   
-.dropdown-content a, .dropdown-content input {
+.dropdown-content > * {
     display: block;
     margin: 5px 0;
     width: 150px;
@@ -89,8 +108,26 @@ input[type=text] {
   
 .show {display: block;}
 
+.instrument {
+    background: rgb(30, 30, 30);
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 0 10px;
+}
+
+#instruments {
+    display: flex;
+    align-items: center;
+}
+
 #menu {
     display: none;
+}
+
+#menu > button {
+    font-size: 1em;
+    padding: 2px 6px 4px 6px;
 }
 
 #logo {
@@ -98,6 +135,11 @@ input[type=text] {
     font-size: 2em;
     padding-left: 1vw;
     padding-right: 2vw;
+    color: #F25C05;
+}
+
+#logo:hover {
+    color: #F28705;
 }
 
 #block-content {

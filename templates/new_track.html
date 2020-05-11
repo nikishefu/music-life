@@ -1,9 +1,44 @@
 {% extends "base.html" %}
-
 {% block content %}
     <link rel="stylesheet" type="text/css" href="/static/css/noteEditor.css">
-    <div id="noteEditor"></div>
+
+    <h1>Новый трек</h1>
+    <form id='form' onsubmit="sendForm()">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(id="title") }}<br>
+            {% for error in form.title.errors %}
+                <div class="alert" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.tempo.label }}<br>
+            {{ form.tempo(id="tempo") }}<br>
+            {% for error in form.tempo.errors %}
+                <div class="alert" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <div id="noteEditor"></div>
+        <div id="instruments">
+            <div class="instrument" id="inst0">
+                <p class="select-cont">
+                    {{ form.instrument(id="instName0") }}<br>
+                </p>
+                <button id="0" type="button" class="nav-button" onclick="openEditor(id)">Редактировать</button>
+            </div>
+        </div>
+        <p><button id="add" type="button" class='nav-button' onclick="addInstrument()">+ Добавить инструмент</button></p>
+        <p>{{ form.submit(type="button", class="nav-button", onclick="sendForm()") }}</p>
+    </form>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/addons/p5.sound.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/addons/p5.sound.min.js"></script> -->
+    <script src="/static/js/newTrack.js"></script>
     <script src="/static/js/noteEditor.js"></script>
 {% endblock %}

@@ -1,5 +1,3 @@
-const WIN_W = 600;
-const WIN_H = 400;
 // SideBars width
 const SBWIDTH = [40, 20]
 const COLOR_THEME = [
@@ -10,17 +8,18 @@ const COLOR_THEME = [
   80  // Grid
 ]
 
-var toDraw;
+var win_w = 600;
+var win_h = 400;
 var canvas;
 var sc = [10, 20]; // Grid scale
-var notes = [];    // Contains Note instances
 // Grid shift
 var x = 0;
-var y = 0;
+var y = 816;
 // Pos of start of drawing a note,
 // (-1,-1) - not drawing
 var startX = -1;
 var startY = -1;
+var toDraw;
 
 var controlsDiv;
 var slidersDiv;
@@ -29,28 +28,56 @@ var hScaleSlider;
 var vScaleSlider;
 var resetButton;
 
-function getCoords(elem) {
-  let box = elem.getBoundingClientRect();
-  return {
-    top: box.top + pageYOffset,
-    left: box.left + pageXOffset
-  };
+function loadSettings() {
+  if (settings.length >= openedEditor + 1) {
+    sc = settings[openedEditor].sc;
+    x = settings[openedEditor].x;
+    y = settings[openedEditor].y;
+
+    hScaleSlider.value(sc[0]);
+    vScaleSlider.value(sc[1]);
+    vScaleSlider.elt.dispatchEvent(new Event('input'))
+    vScrollSlider.value(y);
+    drawEditor();
+  } else {
+    loadDefault();
+    settings.push({});
+    saveSettings();
+  }
+}
+
+function loadDefault() {
+  sc = [10, 20];
+  x = 0;
+  y = 816;
+  
+  hScaleSlider.value(sc[0]);
+  vScaleSlider.value(sc[1]);
+  vScaleSlider.elt.dispatchEvent(new Event('input'))
+  vScrollSlider.value(y);
+  drawEditor();
+}
+
+function saveSettings() {
+  settings[openedEditor].sc = sc;
+  settings[openedEditor].x = x;
+  settings[openedEditor].y = y;
+  drawEditor();
 }
 
 function setupCanvas() {
-  canvas = createCanvas(WIN_W, WIN_H);
+  div.style.position = 'relative';
+  div.style.boxShadow = `0 0 10px 2px ${COLOR_THEME[0]}`;
+  div.style.margin = '50px 10px';
+  div.style.borderRadius = '5px';
+  div.style.background = color(COLOR_THEME[3]);
+  
+  win_w = div.clientWidth;
+  canvas = createCanvas(win_w, win_h);
   canvas.elt.style.display = 'block';
   canvas.elt.style.borderRadius = '5px';
   canvas.elt.style.borderBottom = `1px solid ${COLOR_THEME[0]}`;
   canvas.parent("noteEditor");
-  
-  let div = canvas.parent();
-  // div.style.border = `2px solid ${COLOR_THEME[0]}`;
-  div.style.boxShadow = `0 0 10px 2px ${COLOR_THEME[0]}`;
-  div.style.margin = '10px';
-  div.style.borderRadius = '5px';
-  div.style.display = 'inline-block';
-  div.style.background = color(COLOR_THEME[3]);
   
   controlsDiv = createDiv();
   controlsDiv.parent('noteEditor');
@@ -68,18 +95,17 @@ function setupCanvas() {
 }
 
 function setupVScroll() {
-  let max = 121 * sc[1] - WIN_H + SBWIDTH[1];
-  vScrollSlider = createSlider(0, max, max / 1.5, 0.1);
+  let max = 121 * sc[1] - win_h + SBWIDTH[1];
+  vScrollSlider = createSlider(0, max, max / 2.5, 0.1);
+  vScrollSlider.parent('#noteEditor')
   vScrollSlider.class('slider');
-  canvPos = getCoords(canvas.elt);
-  scrollWidth = WIN_H - 40;
   
   vScrollSlider.elt.style.cssText = `
     transform: rotate(90deg);
-    width: ${scrollWidth}px;
+    width: ${win_h - 40}px;
     position: absolute;
-    left: ${canvPos.left - scrollWidth / 2 + 10}px;
-    top: ${canvPos.top + scrollWidth / 2 + 10}px;
+    top: ${win_h / 2}px;
+    left: ${-win_h / 2 + 26}px;
   `;
   
   y = vScrollSlider.value();
@@ -98,11 +124,12 @@ function setupVScroll() {
 function setupHScale() {
   hScaleSlider = createSlider(5, 20, sc[0], 0.1);
   hScaleSlider.parent('slidersDiv');
+  hScaleSlider.elt.style.marginRight = '10px';
   hScaleSlider.elt.addEventListener('input', function() {
     let newSc = hScaleSlider.value();
     
     // Change x to zoom into the center of viewport
-    x += (x + WIN_W / 2 - SBWIDTH[0] / 2) / sc[0] * (newSc - sc[0]);
+    x += (x + win_w / 2 - SBWIDTH[0] / 2) / sc[0] * (newSc - sc[0]);
     if (x < 0) x = 0;
     
     sc[0] = newSc;
@@ -117,12 +144,12 @@ function setupVScale() {
     let newSc = vScaleSlider.value();
     
     // Stay on the same note
-    y += (y + WIN_H / 2 - SBWIDTH[1] / 2) / sc[1] * (newSc - sc[1]);
+    y += (y + win_h / 2 - SBWIDTH[1] / 2) / sc[1] * (newSc - sc[1]);
     
     sc[1] = newSc;
     
     // Refresh the limit
-    vScrollSlider.elt.max = 121 * sc[1] - WIN_H + SBWIDTH[1];
+    vScrollSlider.elt.max = 121 * sc[1] - win_h + SBWIDTH[1];
     
     // Syncronize y and slider
     vScrollSlider.value(y);
@@ -133,8 +160,9 @@ function setupVScale() {
 function setupButton() {
   resetButton = createButton('✕');
   resetButton.parent('controlsDiv');
+  resetButton.elt.type = "button";
   resetButton.elt.onclick = function() {
-    notes = [];
+    notes[openedEditor] = [];
     drawEditor();
   }
 }
@@ -147,13 +175,13 @@ function drawHints() {
     
     // if outside the canvas
     if (drawY < -sc[1]) {continue}
-    else if (drawY > WIN_H) {break}
+    else if (drawY > win_h) {break}
       
     switch (note) {
       // Black notes
       case 1:case 3:case 5:case 8:case 10:
         fill(COLOR_THEME[3]);
-        rect(SBWIDTH[0], drawY, WIN_W - SBWIDTH[0], sc[1]);
+        rect(SBWIDTH[0], drawY, win_w - SBWIDTH[0], sc[1]);
         break;
       // C notes
       case 11:
@@ -166,12 +194,12 @@ function drawHints() {
   
   // Background of sidebar on top
   fill(COLOR_THEME[2]);
-  rect(SBWIDTH[0], 0, WIN_W - SBWIDTH[0], SBWIDTH[1]);
+  rect(SBWIDTH[0], 0, win_w - SBWIDTH[0], SBWIDTH[1]);
   
   // Numeration of beats
   let beat = Math.floor(x / (sc[0] * 8)) + 2;
   for (let i = 41 + sc[0] * 8 - (x % (sc[0] * 8));
-       i <= WIN_W; i += sc[0] * 8) {
+       i <= win_w; i += sc[0] * 8) {
     fill(COLOR_THEME[1])
     textAlign(LEFT, TOP);
     textSize(SBWIDTH[1] * 0.5);
@@ -184,31 +212,31 @@ function drawGrid() {
   stroke(COLOR_THEME[4]);
   // Horizontal
   for (let i = SBWIDTH[1] + sc[1] - (y % sc[1]);
-       i <= WIN_H; i += sc[1]) {
-    line(SBWIDTH[0], i, WIN_W, i);
+       i <= win_h; i += sc[1]) {
+    line(SBWIDTH[0], i, win_w, i);
   }
   // Vertical
   for (let i = SBWIDTH[0] + sc[0] - (x % sc[0]);
-       i <= WIN_W; i += sc[0]) {
-    line(i, SBWIDTH[1] * 0.75, i, WIN_H);
+       i <= win_w; i += sc[0]) {
+    line(i, SBWIDTH[1] * 0.75, i, win_h);
   }
   // Vertical bolder
   stroke(COLOR_THEME[1]);
   for (let i = SBWIDTH[0] + sc[0] * 8 - (x % (sc[0] * 8));
-       i <= WIN_W; i += sc[0] * 8) {
-    line(i, SBWIDTH[1] * 0.5, i, WIN_H);
+       i <= win_w; i += sc[0] * 8) {
+    line(i, SBWIDTH[1] * 0.5, i, win_h);
   }
   
   // Sidebars separators
   stroke(COLOR_THEME[0]);
-  line(SBWIDTH[0], 0, SBWIDTH[0], WIN_H);
-  line(SBWIDTH[0], SBWIDTH[1], WIN_W, SBWIDTH[1]);
+  line(SBWIDTH[0], 0, SBWIDTH[0], win_h);
+  line(SBWIDTH[0], SBWIDTH[1], win_w, SBWIDTH[1]);
 }
 
 function drawNotes() {
   stroke(COLOR_THEME[1]);
   fill(COLOR_THEME[0])
-  for (let n of notes) {n.draw();}
+  for (let n of notes[openedEditor]) {n.draw();}
 }
 
 function Note(nx1, ny1, nx2) {
@@ -228,8 +256,8 @@ function Note(nx1, ny1, nx2) {
     let drawY = this.y * sc[1] + SBWIDTH[1] - y;
     let drawW = this.dur * sc[0];
     let drawH = sc[1];
-    if (drawX > SBWIDTH[0] - drawW && drawX < WIN_W &&
-        drawY > SBWIDTH[1] - drawH && drawY < WIN_H) {
+    if (drawX > SBWIDTH[0] - drawW && drawX < win_w &&
+        drawY > SBWIDTH[1] - drawH && drawY < win_h) {
       if (drawX <= SBWIDTH[0]) {
         drawW += drawX - SBWIDTH[0] - 1;
         drawX = SBWIDTH[0] + 1;
@@ -251,6 +279,7 @@ function setup() {
   setupVScale();
   setupButton();
   drawEditor();
+  saveSettings();
 }
 
 // Drawing happens only after visual changes
@@ -265,8 +294,8 @@ function drawEditor() {
 }
 
 function mouseWheel(event) {
-  if (0 < mouseX && mouseX < WIN_W &&
-      0 < mouseY && mouseY < WIN_H) {
+  if (0 < mouseX && mouseX < win_w &&
+      0 < mouseY && mouseY < win_h) {
     if (SBWIDTH[0] < mouseX) {
       x += event.delta / 2;
       if (x < 0) {
@@ -281,21 +310,21 @@ function mouseWheel(event) {
 
 function mousePressed() {
   toDraw = true;
-  if (SBWIDTH[0] < mouseX && mouseX < WIN_W &&
-      SBWIDTH[1] < mouseY && mouseY < WIN_H) {
+  if (SBWIDTH[0] < mouseX && mouseX < win_w &&
+      SBWIDTH[1] < mouseY && mouseY < win_h) {
     startX = mouseX;
     startY = mouseY;
     lastNote = new Note(startX, startY, mouseX)
-    notes.push(lastNote);
+    notes[openedEditor].push(lastNote);
     
     // if clicked existing note
-    for (let i = 0; i < notes.length - 1; i++) {
-      let note = notes[i];
+    for (let i = 0; i < notes[openedEditor].length - 1; i++) {
+      let note = notes[openedEditor][i];
       if (note.x <= lastNote.x &&
           lastNote.x < note.x + note.dur &&
           lastNote.y == note.y) {
-        notes.splice(i, 1);
-        notes.pop();
+        notes[openedEditor].splice(i, 1);
+        notes[openedEditor].pop();
         startX = -1;
         startY = -1;
         break;
@@ -310,17 +339,17 @@ function mousePressed() {
 function mouseReleased() {
   toDraw = false;
   if (startX > 0) {
-    let lastNote = notes[notes.length - 1];
+    let lastNote = notes[openedEditor][notes[openedEditor].length - 1];
     if (lastNote.dur == 0) {
-      notes.pop();
+      notes[openedEditor].pop();
     } else {
       // if overlay delete all underlying
-      for (let i = 0; i < notes.length - 1; i++) {
-        let note = notes[i];
+      for (let i = 0; i < notes[openedEditor].length - 1; i++) {
+        let note = notes[openedEditor][i];
         if (lastNote.y == note.y &&
             lastNote.x <= note.x &&
             note.x < lastNote.x + lastNote.dur) {
-          notes.splice(i, 1);
+          notes[openedEditor].splice(i, 1);
           i--;
         }
       }
@@ -332,7 +361,13 @@ function mouseReleased() {
 }
 
 function updateDur() {
-  if (startX >= 0 && notes.length > 0) {
-    notes[notes.length - 1].setX2(mouseX);
+  if (startX >= 0 && notes[openedEditor].length > 0) {
+    notes[openedEditor][notes[openedEditor].length - 1].setX2(mouseX);
   }
+}
+
+function windowResized() {
+  win_w = div.clientWidth;
+  resizeCanvas(win_w, win_h);
+  drawEditor();
 }
